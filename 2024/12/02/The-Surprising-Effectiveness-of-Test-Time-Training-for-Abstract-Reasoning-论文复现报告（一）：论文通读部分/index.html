@@ -1,0 +1,800 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​一，前言复现一篇论文肯定是要先把这个论文理解到位，先贴一下论文的链接：https:&#x2F;&#x2F;ekinakyurek.github.io&#x2F;papers&#x2F;ttt.pdf 然后这是我第一次复现论文，我也不知道报告要怎么写，但是因为我白天实习上班，所以只能看论文写写博客，这样的话就会写的很细，因为我有很多时间写这个（ 二，正文摘要部分首先是看论文的摘要部分： 简单来说，就是说语言模型在很多训练集相关的问题上有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Surprising Effectiveness of Test-Time Training for Abstract Reasoning 论文复现报告（一）：论文通读部分">
+<meta property="og:url" content="http://example.com/2024/12/02/The-Surprising-Effectiveness-of-Test-Time-Training-for-Abstract-Reasoning-%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0%E6%8A%A5%E5%91%8A%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E8%AE%BA%E6%96%87%E9%80%9A%E8%AF%BB%E9%83%A8%E5%88%86/index.html">
+<meta property="og:site_name" content="陈树的博客">
+<meta property="og:description" content="​一，前言复现一篇论文肯定是要先把这个论文理解到位，先贴一下论文的链接：https:&#x2F;&#x2F;ekinakyurek.github.io&#x2F;papers&#x2F;ttt.pdf 然后这是我第一次复现论文，我也不知道报告要怎么写，但是因为我白天实习上班，所以只能看论文写写博客，这样的话就会写的很细，因为我有很多时间写这个（ 二，正文摘要部分首先是看论文的摘要部分： 简单来说，就是说语言模型在很多训练集相关的问题上有">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-12-02T12:30:30.000Z">
+<meta property="article:modified_time" content="2024-12-02T12:33:39.248Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>The Surprising Effectiveness of Test-Time Training for Abstract Reasoning 论文复现报告（一）：论文通读部分 - 陈树的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"Taum0Uk11gdw5koH4FVV5WGR-gzGzoHsz","app_key":"J1j2zE2U5y4bvbQfKnPGpWUD","server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>陈树的博客</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="The Surprising Effectiveness of Test-Time Training for Abstract Reasoning 论文复现报告（一）：论文通读部分"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-02 20:30" pubdate>
+          2024年12月2日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          68 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span>次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">The Surprising Effectiveness of Test-Time Training for Abstract Reasoning 论文复现报告（一）：论文通读部分</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>​<br>一，前言<br>复现一篇论文肯定是要先把这个论文理解到位，先贴一下论文的链接：<a target="_blank" rel="noopener" href="https://ekinakyurek.github.io/papers/ttt.pdf">https://ekinakyurek.github.io/papers/ttt.pdf</a></p>
+<p>然后这是我第一次复现论文，我也不知道报告要怎么写，但是因为我白天实习上班，所以只能看论文写写博客，这样的话就会写的很细，因为我有很多时间写这个（</p>
+<p>二，正文<br>摘要部分<br>首先是看论文的摘要部分：</p>
+<p>简单来说，就是说语言模型在很多训练集相关的问题上有令人惊艳的发挥，但是在需要复杂推理的新问题上面就表现的很挣扎。所以本文就调察了使用TTT方法——在ARC数据集作为基准的情况下——能在提升模型的推理能力方面在有多有效。然后介绍了一下TTT：在推理期间使用从输入数据导出的损失临时更新模型参数的一种方法，根据输入数据动态调参。然后作者做完实验之后，发现了让TTT发挥作用的三个关键组成部分：(1) 在相似任务上的初始微调 (2) 辅助任务格式和增强 (3) 对每个实例的训练。然后作者说了一下实验结果，显然，sota啦！</p>
+<p>背景介绍部分<br>首先还是先强调了一下，现在的大语言模型在处理已知问题上的才能，但是在处理不在数据集里的问题方面，表现的不尽如人意，然后放了张图表示用了TTT之后，处理不在数据集的问题的能力就提升了不少，能力upupup！</p>
+<p>然后又是提了一些之前提出的解决这个问题的方法，例如：chain-of-thought prompting（通过提供一系列逐步推理的过程来指导模型解决问题，这些推理步骤模仿人类解决问题时的思考链条。通过这样的引导，模型能够更清晰地理解问题结构，更好地捕捉到问题解决的关键路径，从而提高了解决复杂问题的能力）等等。</p>
+<p>由此引出了TTT结构，然后再次介绍了一下TTT和相关的应用–视觉模型和时序模型都能用，行文非常有逻辑。</p>
+<p>此时作者也没再重复这些背景介绍了，直接贴出来了本文的贡献有哪些：</p>
+<p>第一点实际上在摘要里面就重点提过了，第二点列了实验结果数据，第三点是说用了TTT之后以前只能通过程序合成来解决的任务可以直接解决了。</p>
+<p>之后作者写了一段挺有意思的话，大意是：这些结果挑战了符号组件对于解决复杂的任务是必要的假设。因为这些结果说明了解决新推理问题的关键因素可能是在测试期间分配适当的计算资源，而与这些资源是通过符号机制还是神经机制部署无关。</p>
+<p>ARC介绍<br>前面说了很多次ARC数据集了其实，所以作者也是专门开了一个小章节来详细介绍一下ARC数据集：</p>
+<p>抽象与推理语料库（ARC）旨在通过其解决视觉谜题的能力来评估语言模型的抽象推理能力。每个谜题，即任务，由2D网格（最大尺寸为30×30）的输入-输出对组成，这些网格包含用多达10种不同颜色绘制的形状或图案，如图所示。每个对中的输出是通过应用一个直观且通用的变换规则或函数 y &#x3D; f(x) 获得的。在实践中，这些变换高度多样且复杂，从简单的概念（如反射和计数）到更复杂的（如应用重力和路径寻找）。”</p>
+<p>In-context Learning介绍<br>语言模型（LMs）在一定规模下的一种能力，即通过输入示例或指令的上下文信息来适应新任务，而无需更新其参数。这种能力被称为“in-context learning”，它使得语言模型能够直接从输入的示例中学习并生成新的输出。主要就是这几点：</p>
+<p>适应新任务的能力：当语言模型达到一定的规模时，它能够通过观察新的输入示例来适应新的任务，而无需重新训练或调整其参数。这种能力使得语言模型能够快速适应新的语言环境和任务要求。</p>
+<p>上下文信息的使用：在in-context learning中，语言模型会使用一系列的输入-输出对（例如，(x1, y1), …, (xn, yn)）以及一个新的输入xn+1，来生成新的输出yˆn+1。这表明语言模型能够通过观察已有的输入和输出对，以及新的输入，来推断出新的输出。</p>
+<p>in-context learning的特点：in-context learning与传统的机器学习算法不同，它不遵循标准的机器学习框架。它是一种通过上下文信息进行学习的方法，而不是通过数据集的训练来学习。</p>
+<p>局限性：尽管in-context learning在某些情况下表现出色，但它并不是对所有新任务都有效。例如，对于较小的语言模型（例如，只有几亿参数），它们在ARC（抽象与推理语料库）上的表现并不理想。ARC是一个专门用于评估语言模型抽象推理能力的数据集，较小的语言模型在这个数据集上的表现较差，这表明in-context learning可能不适用于所有类型的任务，尤其是那些需要复杂推理能力的任务。</p>
+<p>TTT介绍<br>测试时训练（TTT）允许参数化模型通过动态参数更新在推理过程中进行适应，这种技术是一种归纳学习的形式，其中模型利用测试数据结构来提高其预测。TTT的一般过程如下：从初始模型参数θ0开始，对于每个测试输入（或输入批次），我们首先从测试输入生成训练数据DTTT(dinput)。然后，我们优化这些参数以最小化损失函数L(DTTT; θ)，产生暂时更新的参数θd用于预测。在生成预测后，模型被恢复到原始参数θ0，以处理下一个实例或批次。因此，TTT为每个测试输入训练了一个专门的预测模型，该模型是通过在由该测试输入生成的测试时数据集上微调基础模型获得的。</p>
+<p>在过去的工作中（作者在这里举了一些例子），DTTT通常是通过仅对输入x应用无监督目标（例如，掩蔽自动编码）来构建的。然而，我们考虑的上下文学习（也就是上面介绍的In-context Learning）设置提供了以演示对（x1, y1），…，（xK, yK）形式更丰富的上下文。在这里，应用测试时调整涉及首先构建一个初始语言模型LM，将每个测试输入x映射到一个特定的输入-特定数据集DTTT，然后微调LM以优化某些损失函数L，根据：∑d∈DTTT L(LM(d))，并在数据集上进行优化。最后，从更新的模型中采样以获得最终的预测。</p>
+<p>实验设置<br>这个很重要，作者首先明确了要用控制变量法（To investigate the impact of each TTT component, we conduct experiments by varying one component while holding the others constant at their optimal values (described in their respective sections).）每个部分单独测效果，</p>
+<p>然后说了一下模型配置：8B  Llama-3 models, and 1B, 3B Llama-3.2 models，对显存的要求较高，还有数据集ARC，一次80个问题，作者用的是A100</p>
+<p>TTT过程中的数据集和损失<br>数据生成<br>步骤<br>简单来说，通过一个两步过程来获取DTTT（也就是所谓的对于TTT生成的数据）：首先，我们从给定的训练输入-输出对中创建一组留一在上下文学习任务。然后，我们使用可逆的基于规则的变换对这个集合进行增强。这个过程如下图所示。</p>
+<p>详细的步骤：</p>
+<p>步骤1 - 留一法：通过排除第j个示例对作为测试集，我们可以生成n个不同的任务，每个任务包含n - 1个训练集。我们进一步重新排列训练示例的顺序生成了dj的两个随机排列版本。</p>
+<p>步骤2 - 基于规则的变换：考虑一个可逆的变换t，使得t−1(t(x)) &#x3D; x。对于步骤1中获得的每个任务，使用t生成一个新的增强任务t(dICL)，其中t应用于任务中的每个单独网格。 我们选择简单的变换，这些变换在保留基本关系的同时引入了控制变化，例如旋转、翻转、颜色置换、示例置换、大小缩放等。这是很常见的数据增强的办法。</p>
+<p>这个过程的目的是通过创建合成任务和应用数据增强来丰富测试时训练数据集DTTT，从而提高模型的泛化能力和鲁棒性。</p>
+<p>baseline：端到端学习任务<br>作者为了与上文所述的“测试时间上下文学习”方法进行比较，还评估了“测试时间端到端学习”方法。这种方法直接从示例演示中创建一个监督数据集，将每个输入-输出对视为一个独立的训练实例。不像上下文学习设置，在预测时不使用上下文。</p>
+<p>优化目标<br>作者先声明了他们使用了lora网络让模型实现TTT过程，这样有着更好的计算适应性（这个我之前在玩sd画画的时候训练过几个，不用很大的显存也能训练），然后贴出来了训练目标：</p>
+<p>总之是要最小化标准语言模型在示例和测试集上的loss</p>
+<p>结果展示<br>作者贴了几张图来展示用了TTT之后的结果：</p>
+<p>可以看出微调之后的模型加上TTT的效果非常好</p>
+<p>TTT后的推理策略<br>增强推理<br>作者首先说了根据最近的研究，扩大测试时计算量可以显著提升语言模型的性能。最常用的技术之一是对多个响应进行采样，然后使用排序器选择最佳响应。然而，尽管采样在有多种可能解决方案的领域（例如代码中的程序）或通向最终答案的多条路径（例如数学）中非常有效，但在直接生成答案时可能会产生负面影响，因为没有办法在确保样本内部一致性的同时直接强制样本之间的多样性。作为推理时间扩展的替代方案，本论文使用了一种增强的推理策略，通过几何变换生成多个预测候选，与贪心解码方案相结合。详细来说就是对于具有训练样例 (x, y)_k 和测试输入 x_test 的特定任务，使用可逆的几何变换来生成该任务的等价变换版本，将其应用于所有训练示例和测试输入，并使用这些变换后的输入运行模型。</p>
+<p>预测集成（投票策略）<br>这个方法是通过一种分层的投票策略来最终决定哪一个预测是最好的。基本上分为两个阶段：</p>
+<ol>
+<li><p>变换内投票：我们把所有预测依据其所对应的变换进行分组。在每一组内，我们挑选出最常出现的三个预测。如果某一组中不够三个不同的预测，我们就想办法补足。例如，我们可以通过看每一行或者每一列的最多数值来补充预测。这意味着在这个阶段，我们不仅依据整体预测来挑选，还从细分的数据特征中获取信息。</p>
+</li>
+<li><p>全局投票：在这个阶段，我们把所有变换组的候选预测集合在一起，再次进行投票。最终，我们选择出现次数排名前二的预测作为最终结果。如果有出现次数相同的情况，我们会优先选择那些在无变换（即原始状态）的情况下的预测。</p>
+</li>
+</ol>
+<p>总的来说，这种方法是为了确保生成的预测既多样化又具有一致性，通过逐步投票筛选出最可能的结果。</p>
+<p>结果<br>这里作者说为了评估上面两个方法的效果，做了消融实验（一种用于评估和理解模型性能贡献的实验方法。在机器学习和深度学习中，研究人员会对模型的不同组成部分进行有针对性的移除或修改，以观察这些变化对模型整体性能的影响。通过这种方式，他们可以识别出哪些组件或特征对模型的性能至关重要，哪些则可以去除或简化而不显著影响性能。）（话说为啥不能叫控制变量法）</p>
+<p>显然这是复现论文的时候需要做的实验：</p>
+<p>1.首先要做的事肯定是确定基线模型的效果,作者称之为Vanilla模型简单来说就是啥tricks都没有用到的方法,直接使用训练好的模型来生成预测结果,这个模型为任务的两个不同排列各生成一个预测结果,这个基线模型的设置作为一个参考点，用来评估作者提出的增强推理和投票策略的好处。通过比较基线模型和其他模型的性能，可以更清楚地看到这些策略带来的改进。(其实就是控制变量)</p>
+<p>2.第二个实验应用了特定的数据变换,来评估只使用这一个方法的效果,换句话说，模型在处理经过旋转、转置或翻转的数据时的表现如何,然后还强调了本实验的目的是单独评估每种变换的效果。,也就意味着每次实验只应用一种变换，而不是多种变换的组合，以此来确定每种变换对模型性能的具体影响。而且作者还专门提了一句基线模型实际上也可以被认为是这个类别的一部分,因为变换是恒等的</p>
+<p>3.第三个实验就是用上了分层投票技术</p>
+<ol start="4">
+<li>第四个实验是用了扁平投票技术</li>
+</ol>
+<p>5.第五个实验,命名为Oracle,作者说这个模型是最理想的投票模型,只要投票集合里有正确的就会把他选出来,他代表了投票系统的上限!</p>
+<p>这张图展示了这个实验的结果:</p>
+<p>可以发现,特定变换版本（如旋转、转置、翻转等）的单独性能通常较差。这意味着当模型只针对某种特定的数据变换进行训练或测试时，其准确度并不高。 在所有变换中，转置变换的准确度最低。然而，通过投票程序对这些变换的预测结果进行聚合，可以显著提高准确度。这表明，尽管单个变换的性能不佳，但将它们结合起来可以提升整体性能。这表明某些任务在其变换版本上可能更容易解决。这可能是因为变换后的数据提供了不同的视角或特征，有助于模型更好地理解任务。</p>
+<p>然后作者也提到了—这是一个公认的有效策略。 实际上，使用分层程序的时候与Oracle模型相当，这表明分层聚合能够有效地选择正确答案（当正确答案存在时）并且具有很高的准确度。这强调了分层投票方法的有效性，它接近于理论上的最佳性能。</p>
+<p>在TTT之前的微调<br>尽管TTT提升了模型的任务适应力,模型的基本能力还是会影响最终的表现.所以作者就有了一些办法来生成合成的训练数据,以此来提升模型的抽象解释能力,探索任务生成的自动和半自动方法.所以在这一节中主要就是讲如何生成微调数据和分析一下不同的数据来源和模型大小对最后表现的影响.</p>
+<p>准备微调数据<br>作者先提到了Hodel (2024) 提供了一个特定领域的语言（DSL），名为 REARC。其中包括为 DARC 训练数据集中的每个任务实现的数据生成函数 gi 和变换函数 fi，这些函数能够生成遵循相同变换原则的新输入-输出对，使得通过 gi 生成的数据可以由相同的 fi 函数解决，从而保持了任务的一致性和可扩展性。</p>
+<p>所以作者接下来就要用这个方法了:</p>
+<p>a)使用现有的生成器，REARC中的生成器函数gs已经通过生成相同任务的不同实例化，提供了一个有效的数据增强工具。通过多次运行这些代码，并随机将这些新示例分割到训练和测试示例集，从这些训练任务中生成额外的样本。</p>
+<p>b)除了使用REARC,作者还用了其他办法,也就是使用少量样本提示（few-shot prompting）和大型语言模型（LLM，如GPT4和GPT4-o的集合）来生成新的任务。简而言之，就是通过以下步骤来创造多样化的任务：首先，利用现有的生成器函数和少量样本，让语言模型生成新的生成器函数。接着，结合任务描述和生成器函数，通过少量样本提示来共同生成任务描述和新生成器。此外，作者还采用了一种两阶段的方法，先生成任务描述，然后再基于这些描述生成新的生成器。通过这些方法，研究者收集了6426个生成器，并通过下图中的过程提供了这些任务描述的生成细节。</p>
+<p>得到了类似这样的结果:</p>
+<p>c)最后后，作者的合成任务通过多种几何变换得到了增强，这些变换包括基本变换（如旋转、反射、随机位移和尺寸缩放）、图案操作（如随机贴片、平铺和重复）、颜色排列，以及涉及多个基本变换顺序应用的复合变换。这些变换以以下三种方式应用：</p>
+<p>仅输入网格：将输入(x, y)变换为(t(x), y)，其中t表示某种几何变换。<br>仅输出网格：将输入(x, y)变换为(x, t(y))。<br>输入和输出都应用：将输入(x, y)变换为(t(x), t(y))。<br>结果<br>得到数据之后,就能微调了,显然,所以作者要开始列出结果了:</p>
+<p>作者使用了增强数据对1B和3B参数的Llama 3.2指令调整模型以及8B参数的Llama 3指令调整模型进行了全面微调。微调的格式和训练目标与第2节(也就是背景介绍部分)中描述的TTT模型相同。。对于增强数据，作者进行了以下消融实验：</p>
+<ol>
+<li><p>No FT：未进行任何微调的原始Llama 3指令调整模型。</p>
+</li>
+<li><p>All：我们使用了第上面中描述的所有方法，包括REARC、基于规则的增强和语言模型生成。</p>
+</li>
+<li><p>No-Geom：我们从所有任务中移除了几何变换。</p>
+</li>
+<li><p>No-LM：我们仅使用REARC和基于规则的增强，排除了由语言模型生成的任务。</p>
+</li>
+</ol>
+<p>结果如图:</p>
+<p>左边是微调模型在不同数据上的表现,可以看出,加上TTT之后的表现了极大的提升</p>
+<p>右边是不同模型大小之间的表现区别,TTT同样表现了很好的效果</p>
+<p>所以FT的数据是如何影响TTT的呢?</p>
+<p>作者说通过上图,其实可以看出来使用REARC和结合基于规则的增强方法训练的模型在TTT任务上取得了最强的性能。这表明这种组合方法是有效的，可以提高模型的泛化能力。但是ALL部分多了使用LM模型生层数据却导致低了5个点,这表明当前的基于LM的任务生成方法可能存在一些问题，例如生成的任务质量不高或者与实际任务不匹配。最后，研究发现微调阶段的性能与TTT阶段的性能之间几乎没有相关性。这意味着即使模型在微调数据上表现很好，也不一定意味着它在TTT任务上会有很好的表现。这可能是由于TTT任务与微调任务之间的差异导致的。</p>
+<p>那么模型的参数对于结果的影响情况呢?</p>
+<p>随着模型参数量的增加，模型在微调阶段的性能也有所提高。在所提供的数据中，8B（80亿参数）的模型在微调后达到了最高的准确率，即36%。而通过TTT过程，参数量较小的模型（如1B和3B模型）在性能上得以提升，以至于它们在TTT后的准确率与较大模型相似。</p>
+<p>ARC 基准和它与其他系统的比较<br>在这项研究中，作者在80个任务上进行了开发实验后，在完整的ARC公共评估集上展示了全面的结果，并将他们的系统与现有方法进行了比较.比较侧重于三个关键方面：他们TTT（任务到任务转换）方法的影响、将他们的方法与现有方法结合的好处，以及全神经网络方法与程序合成方法之间的差异。结果:</p>
+<p>结论<br>在本研究中，作者探讨了测试时训练（test-time training）的效果，并证明了它能够显著提升语言模型在ARC数据集上的性能。同时还发现了学习特定于任务的LoRA适配器和使用几何变换生成增强的测试时数据集至关重要。此外，作者还开发了一个增强的推理流程，利用可逆变换生成多个预测，并通过自一致性选择最佳候选。我们的整体流程应用了多种测试时计算方法，每个组件都有正向的贡献。这表明TTT不仅能提升LM性能，不同的测试时方法还能相互补充.作者的TTT流程与现有方法（BARC）结合，在ARC公共数据集上实现了最佳结果，并与平均人类表现相当。我们的发现暗示，测试时方法可能在推动下一代LM的发展中扮演关键角色。然而，他们的研究也存在局限性，包括评估框架的限制、实验重现性的问题，以及数据泄露的可能性。
+ </p>
+<p>三，要做的实验总结<br>显然主要要做的实验就是每一个消融实验!</p>
+<p>第一部分</p>
+<p>这里要做的实验有六个,我先详细讲一下我的思路:</p>
+<p>1.第一个实验,也就是用的没有TTT结构的微调模型来跑,作为baseline,但是有个问题是没有提到这个实验是在哪种类型的模型上实验的(姑且认为是Llama-3 8B)</p>
+<p>2.第二个实验,就是在增强数据里边去掉了第二步的转换生成步骤,得到未经过变换增强的测试时训练数据集,再进行TTT实验</p>
+<p>3.第三个实验,按照论文中描述的端到端任务公式创建数据集,将每个输入 - 输出对视为独立训练实例,不使用上下文信息（与 in - context 学习设置不同）。同样可以对这些数据应用规则变换来增强数据集（类似于其他实验中的变换操作，但数据组织形式为端到端格式</p>
+<p>4.第四个实验,按照常规方式获取任务的训练输入 - 输出对，并进行数据生成管道中的 leave - one - out 任务创建及规则变换增强数据操作，得到完整的测试时训练数据集（包含多个任务的增强数据）。但与常规 TTT 不同的是，在学习 LoRA 适配器时，不是为每个任务学习单独的适配器，而是使用所有任务的聚合数据集学习单个 LoRA 适配器。利用这个共享的 LoRA 适配器，在测试时对模型参数进行优化（使用 AdamW 优化器，训练 2 个 epoch，批大小为 2 等常规设置）</p>
+<p>5.第五个实验,按照常规的测试时训练数据生成方式，包括 leave - one - out 任务创建和规则变换增强数据，得到测试时训练数据集,在优化模型参数时，只计算测试输出的损失，不考虑演示数据（即训练示例中的输入 - 输出对）的损失。其他训练设置（如使用 LoRA 参数更新、AdamW 优化器、训练 epoch 和批大小等）保持不变。</p>
+<p>6.第六个实验,前面都一样,区别在于在训练模型时，不使用全精度的基础模型更新，而是为每个任务学习量化的 LoRA 适配器，以提高内存效率。其他训练设置（如优化器使用 AdamW、训练 2 个 epoch、批大小为 2 等）与常规 TTT 一致。</p>
+<p>第二部分</p>
+<p>这里要做的实验有五个,我先详细讲一下我的思路:</p>
+<p>1.第一个实验,基准模型,使用标准推理方法，不进行任何增强推理操作（如不使用几何变换生成多个预测版本）和投票操作。仅对任务的两种排列，从模型中生成 2 个预测结果，不进行额外的处理或聚合操作。</p>
+<p>2.第二个实验，评估单个几何变换（旋转、转置、翻转等）在推理过程中的单独有效性，了解每个变换对模型预测性能的影响，为后续确定最佳变换组合或策略提供依据。对于每个任务，分别应用特定的几何变换（如仅旋转 90 度、仅进行转置、仅垂直翻转等）到训练示例和测试输入上，生成变换后的任务版本。使用模型对每个变换后的任务版本进行预测，得到相应的预测结果，每个变换独立进行预测，不进行变换间的组合或投票操作。</p>
+<p>3.第三个实验，首先进行增强推理操作，使用可逆几何变换（如旋转、翻转等）和训练示例排列，生成多个预测候选。例如，对于每个变换，应用于训练示例和测试输入后得到变换后的任务，然后从模型中生成预测结果，并通过逆变换得到最终预测，每个任务总共生成个预测（为训练示例排列数，为变换集合）。接着进行分层投票操作，包括两个阶段：第一阶段在每个变换内进行投票，选择最频繁的预测（若少于 3 个独特预测，则通过行 &#x2F; 列多数投票补充）；第二阶段在变换特定候选中进行全局投票，选择最频繁的 2 个预测作为最终输出。</p>
+<p>4.第四个实验，同样先进行增强推理操作，生成个预测候选。然后对所有预测候选进行一次全局投票，直接选择最频繁的 2 个预测作为最终输出，不进行分层投票中的变换内投票和补充候选操作。</p>
+<p>5.第五个实验，在生成个预测候选后，Oracle 直接从这些候选中选择正确答案（如果存在）。这个估计就是遍历一下答案来看。</p>
+<p>第三部分</p>
+<p>这里有四个实验，我说一下我的思路</p>
+<p>1.No FT 实验，直接使用原始的 Llama 3 指令调优模型，不进行任何额外的微调操作。在测试时，按照常规的推理方式，将测试任务输入到模型中，获取模型的预测结果。不涉及训练过程中的参数更新或数据增强等操作。</p>
+<p>2.All 实验，数据准备阶段，综合运用 Section 5.1 中描述的所有方法生成微调数据。</p>
+<p>利用 REARC 中的生成器函数生成额外样本，并进行适当的分割用于训练和测试。<br>通过语言模型（如 GPT - 4 和 GPT - 4o）采用多种方式（如简单 few - shot 示例生成、生成器与任务描述联合生成、两阶段生成）生成新的任务，并收集这些任务数据。<br>对合成任务应用各种几何变换（如旋转、反射、随机平移和缩放等）进行增强，变换方式包括仅应用于输入网格、仅应用于输出网格或同时应用于输入和输出网格，且以 30% 的概率随机应用这些变换。<br>使用上述生成的增强数据对 1B、3B Llama 3.2 指令调优模型和 8B Llama 3 指令调优模型进行完整的微调训练。训练过程中的格式和训练目标与 Section 2.4 中描述的 TTT 过程相同，具体超参数设置参考附录 B.2（例如使用 AdamW 优化器、特定的学习率、训练 epoch 数和批大小等）。</p>
+<p>在微调训练完成后，使用模型对测试任务进行预测，获取预测结果。</p>
+<p>3.No - Geom 实验，数据准备阶段，使用 REARC 和规则增强方法生成微调数据，但不应用任何几何变换。即不进行如旋转、平移、缩放等几何操作来改变任务的输入或输出。仅依靠 REARC 中的生成器函数生成样本和规则增强（如可能的颜色置换、示例置换等非几何变换操作）来构建微调数据集。使用上述数据对模型进行微调训练，训练过程遵循常规的微调设置（如使用 Llama 系列模型、特定的优化器、训练目标和超参数等，同 All 实验中的训练设置，但数据不含几何变换增强）。微调训练完成后，使用模型对测试任务进行预测，得到预测结果。</p>
+<p>4.No - LM 实验，数据准备阶段，仅利用 REARC 中的生成器函数生成样本，并通过规则增强（如颜色置换、示例置换、大小缩放等）来丰富数据，不包含语言模型生成的任务数据。即不使用如 few - shot 示例生成、生成器与任务描述联合生成等语言模型相关的数据生成方式。使用上述准备的数据对模型进行微调训练，训练过程与其他微调实验保持一致（如模型选择、优化器、训练目标和超参数设置等）。微调训练完成后，使用模型对测试任务进行预测，获取预测结果。</p>
+<p>四，后记<br>所以看起来要做的实验还是很多的，目前我也只是把作者提供的代码跑了起来，还没有完全搞明白该怎么调整来进行上述的所有实验，所以，还是慢慢来吧。。。好消息是显卡资源应该是够的，因为所有实验涉及到训练的只有微调,而我现在能用的是一块A100的40g版本，8B的版本也能跑一下lora训练，速度的话，只能说还得再观察一下，祝我进展顺利！</p>
+<p>​</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>The Surprising Effectiveness of Test-Time Training for Abstract Reasoning 论文复现报告（一）：论文通读部分</div>
+      <div>http://example.com/2024/12/02/The-Surprising-Effectiveness-of-Test-Time-Training-for-Abstract-Reasoning-论文复现报告（一）：论文通读部分/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年12月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/02/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/" title="测试文章">
+                        <span class="hidden-mobile">测试文章</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"Taum0Uk11gdw5koH4FVV5WGR-gzGzoHsz","appKey":"J1j2zE2U5y4bvbQfKnPGpWUD","path":"window.location.pathname","placeholder":"说点什么","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量
+        <span id="leancloud-site-pv"></span>
+        次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数
+        <span id="leancloud-site-uv"></span>
+        次
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
