@@ -26,27 +26,27 @@
 <meta property="og:site_name" content="陈树的博客">
 <meta property="og:description" content="前言其实和TTT没啥关系，但是还是看，反正我时间很多（链接：https:&#x2F;&#x2F;arxiv.org&#x2F;pdf&#x2F;2411.19477） 正文个人初步总结这篇论文实际上就是提出了一套流程，在没有提出新的模型架构的情况下用新的计算流程让整个系统准确率能更高，但是有一定的要求（解决问题的LLM一定要能给出正确的答案，如果给出正确答案的概率是0也白搭），然后作者从数学原理上证明了他这套系统在一定情况下能把错误率减">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/143b9ab562e90bb65e41af91e45fa955.png#pic_center">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/8480aba7c52a944cd3d3f1bda8ae9470.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/6adfb7bc78552e938682cf1ca050eeee.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/2c1f149a29f41a14cfc08f1b742c3fd7.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/9e861de01d6075961946e7785e25cf1d.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/7937f2ae4549d39d12222e1eedac433b.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/f9dfd445ae8c6d773cc116c9f0474036.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/b19acb338377ef2c631ea1d80ee6c0b7.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/f0dd720fde5211aafe156d9394d558c6.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/3c634bc316251e562557f6107099ff02.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/e03d28678d3a75f9c82f6bb177943a6b.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/038b94048c62a24a71ecafb44aa10e19.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/eced9703521333d7d831e455b7cb115f.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/5f0edb64fd85fa9f3352eff4016dce78.png">
-<meta property="og:image" content="https://i-blog.csdnimg.cn/img_convert/54b2d651adf00ab5b35611b308400584.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/9f555ceb8ef6b3f9dc35c4a967a79c4.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205221228056.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205222015209.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205222406190.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205223149670.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205223237757.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205224002893.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205224328454.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205224553554.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205224619558.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205230347395.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205230628280.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205231212620.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205232012985.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205232053802.png">
 <meta property="article:published_time" content="2024-12-05T15:24:23.000Z">
-<meta property="article:modified_time" content="2024-12-05T15:24:43.157Z">
+<meta property="article:modified_time" content="2024-12-05T15:36:08.310Z">
 <meta property="article:author" content="cjx">
 <meta property="article:tag" content="TTT">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://i-blog.csdnimg.cn/img_convert/143b9ab562e90bb65e41af91e45fa955.png#pic_center">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/9f555ceb8ef6b3f9dc35c4a967a79c4.png">
   
   
   
@@ -322,7 +322,7 @@
 <blockquote>
 <p>for  K times. The winner of each pair is the one that is favored for more than K&#x2F;2 times; ties are broken arbitrarily. Only the winners will move on to the next round. The ﬁnal-round winner at the end of this tournament will be the ﬁnal output of the algorithm.</p>
 </blockquote>
-<p><img src="https://i-blog.csdnimg.cn/img_convert/143b9ab562e90bb65e41af91e45fa955.png#pic_center" srcset="/img/loading.gif" lazyload alt="淘汰赛示意图"></p>
+<p><img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/9f555ceb8ef6b3f9dc35c4a967a79c4.png" srcset="/img/loading.gif" lazyload></p>
 <p>上面是原文和图片，下面用我的话讲一遍：<br><strong>目标</strong>： 从多个候选答案中选出最佳答案作为最终输出。<br><strong>过程</strong>：</p>
 <ol>
 <li><strong>随机配对</strong>： 将候选答案随机分成一对一对的。</li>
@@ -342,29 +342,29 @@
 <li>LLM做比较的正确率大于你随机选择（这个动作的正确率是50%）</li>
 </ol>
 <p>在这两个假设的限制下，这个系统的成功率才能到100%（理论上）</p>
-<h2 id="数学分析部分"><a href="#数学分析部分" class="headerlink" title="数学分析部分"></a>数学分析部分</h2><p>数学分析部分其实也很好理解,没有涉及很多很难的东西.<br>首先先介绍一下后面要用的变量<br>N和K,分别代表着生成N个答案和进行K次比较,然后是<br><img src="https://i-blog.csdnimg.cn/img_convert/8480aba7c52a944cd3d3f1bda8ae9470.png" srcset="/img/loading.gif" lazyload><br>在这段描述中：</p>
+<h2 id="数学分析部分"><a href="#数学分析部分" class="headerlink" title="数学分析部分"></a>数学分析部分</h2><p>数学分析部分其实也很好理解,没有涉及很多很难的东西.<br>首先先介绍一下后面要用的变量<br>N和K,分别代表着生成N个答案和进行K次比较,然后是<br><img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205221228056.png" srcset="/img/loading.gif" lazyload><br>在这段描述中：</p>
 <ul>
 <li><p><strong>$M_{gen}$</strong> 代表的是在一次大型语言模型（LLM）调用以生成候选解决方案时，其输出结果的概率分布。也就是说，当利用LLM去尝试生成一个有可能解决给定问题的候选方案时，这个生成过程对应的输出所遵循的概率分布情况由 $M_{gen}$ 来表示。</p>
 </li>
 <li><p><strong>$M_{comp}$</strong> 代表的是在利用LLM对一对解决方案进行比较时，其输出结果的概率分布。例如针对两个已经存在的解决方案，使用LLM来判断它们谁更优或者它们之间的相对关系等情况时，LLM此次比较操作输出所遵循的概率分布就用 $M_{comp}$ 来表示。</p>
 </li>
 </ul>
-<p>所以给定一个输入问题X,在算法的第一个阶段,答案是符合 $M_{gen}$ 的分布的:<br><img src="https://i-blog.csdnimg.cn/img_convert/6adfb7bc78552e938682cf1ca050eeee.png" srcset="/img/loading.gif" lazyload><br>然后在第二阶段,淘汰赛阶段,对于每一个候选者$(y,y^{\prime})$,算法对于$K$个独立比较结果进行采样:<br><img src="https://i-blog.csdnimg.cn/img_convert/2c1f149a29f41a14cfc08f1b742c3fd7.png" srcset="/img/loading.gif" lazyload><br>这是基本的流程,然后接下来是两条定理,限制了计算的情况:<br> 1.<br> 第一条定律,模型输出正确答案的概率不能为0,必然要大于0<img src="https://i-blog.csdnimg.cn/img_convert/9e861de01d6075961946e7785e25cf1d.png" srcset="/img/loading.gif" lazyload><br> 2.<br> 第二条定律,比较一对正确和错误的解决方案时比随机猜测做得更好也就是说政正确概率大于50%<img src="https://i-blog.csdnimg.cn/img_convert/7937f2ae4549d39d12222e1eedac433b.png" srcset="/img/loading.gif" lazyload></p>
+<p>所以给定一个输入问题X,在算法的第一个阶段,答案是符合 $M_{gen}$ 的分布的:<br><img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205222015209.png" srcset="/img/loading.gif" lazyload><br>然后在第二阶段,淘汰赛阶段,对于每一个候选者$(y,y^{\prime})$,算法对于$K$个独立比较结果进行采样:<br><img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205222406190.png" srcset="/img/loading.gif" lazyload><br>这是基本的流程,然后接下来是两条定理,限制了计算的情况:<br> 1.<br> 第一条定律,模型输出正确答案的概率不能为0,必然要大于0<img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205223149670.png" srcset="/img/loading.gif" lazyload><br> 2.<br> 第二条定律,比较一对正确和错误的解决方案时比随机猜测做得更好也就是说政正确概率大于50%<img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205223237757.png" srcset="/img/loading.gif" lazyload></p>
 <p> 在这两条规律的限制下开始推导:</p>
 <ul>
-<li>定理一:如果输入问题满足假设 1，则所提出的两阶段算法在超参数 N和 K下的失败概率有如下界限：<img src="https://i-blog.csdnimg.cn/img_convert/f9dfd445ae8c6d773cc116c9f0474036.png" srcset="/img/loading.gif" lazyload><br> 看起来很复杂的公式,不是么,接下来开始推导:</li>
+<li>定理一:如果输入问题满足假设 1，则所提出的两阶段算法在超参数 N和 K下的失败概率有如下界限：<img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205224002893.png" srcset="/img/loading.gif" lazyload><br> 看起来很复杂的公式,不是么,接下来开始推导:</li>
 </ul>
 <ol>
-<li>第一阶段,也就是生成部分,独立的进行了N次采样,所以我们的无正确解的概率是:<img src="https://i-blog.csdnimg.cn/img_convert/b19acb338377ef2c631ea1d80ee6c0b7.png" srcset="/img/loading.gif" lazyload>显然</li>
-<li>然后是淘汰赛阶段,这个会稍微复杂一点,先考虑一对正确和错误的候选方案,他们被比较了K次,而且每次比较的结果的正确率—下面的公式称之为µ—-都大于随机选择(也就是说大于50%),Xi表示均值为µ的独立伯努利随机变量：所以我们得出,经历了K次比较之后失败的概率公式:<img src="https://i-blog.csdnimg.cn/img_convert/f0dd720fde5211aafe156d9394d558c6.png" srcset="/img/loading.gif" lazyload><img src="https://i-blog.csdnimg.cn/img_convert/3c634bc316251e562557f6107099ff02.png" srcset="/img/loading.gif" lazyload>这里我就先不显然了,因为这里是做了一定的推理的:</li>
+<li>第一阶段,也就是生成部分,独立的进行了N次采样,所以我们的无正确解的概率是:<img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205224328454.png" srcset="/img/loading.gif" lazyload>显然</li>
+<li>然后是淘汰赛阶段,这个会稍微复杂一点,先考虑一对正确和错误的候选方案,他们被比较了K次,而且每次比较的结果的正确率—下面的公式称之为µ—-都大于随机选择(也就是说大于50%),Xi表示均值为µ的独立伯努利随机变量：所以我们得出,经历了K次比较之后失败的概率公式:<img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205224553554.png" srcset="/img/loading.gif" lazyload><img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205224619558.png" srcset="/img/loading.gif" lazyload>这里我就先不显然了,因为这里是做了一定的推理的:</li>
 </ol>
 <ul>
-<li>首先对于最早的不等式我做一个解释,Xi的本质含义就是第i个比较是否正确,所以对于Xi的求和的本质就是看K次比较里正确的总次数,显然比较失败意味着正确识别的次数少于一半,也就是:<img src="https://i-blog.csdnimg.cn/img_convert/e03d28678d3a75f9c82f6bb177943a6b.png" srcset="/img/loading.gif" lazyload>所以失败的概率实际上会等于上面这个式子,但是作者用了一个放缩先写成了小于等于,再进一步的写法就是:<img src="https://i-blog.csdnimg.cn/img_convert/038b94048c62a24a71ecafb44aa10e19.png" srcset="/img/loading.gif" lazyload>当平均次数小于等于0.5时，就认为比较失败了(符合第二个假设)。</li>
+<li>首先对于最早的不等式我做一个解释,Xi的本质含义就是第i个比较是否正确,所以对于Xi的求和的本质就是看K次比较里正确的总次数,显然比较失败意味着正确识别的次数少于一半,也就是:![]<img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205230347395.png" srcset="/img/loading.gif" lazyload>所以失败的概率实际上会等于上面这个式子,但是作者用了一个放缩先写成了小于等于,再进一步的写法就是:<img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205230628280.png" srcset="/img/loading.gif" lazyload>当平均次数小于等于0.5时，就认为比较失败了(符合第二个假设)。</li>
 <li>然后在此引入均值μ,这一步就是不等式两边减了一个μ,为了后面的不等式做准备</li>
-<li>使用 Hoeffding 不等式:<img src="https://i-blog.csdnimg.cn/img_convert/eced9703521333d7d831e455b7cb115f.png" srcset="/img/loading.gif" lazyload>,所以直接套公式就好,然后又因为已知μ&gt;Pcomp&gt;0.5,所以又能进行一次替换,换成最后的形式,最终完成了对比较这对候选解决方案失败概率的推导和界定。</li>
+<li>使用 Hoeffding 不等式:<img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205231212620.png" srcset="/img/loading.gif" lazyload>,所以直接套公式就好,然后又因为已知μ&gt;Pcomp&gt;0.5,所以又能进行一次替换,换成最后的形式,最终完成了对比较这对候选解决方案失败概率的推导和界定。</li>
 </ul>
 <ol start="3">
-<li>最后就是把两个阶段的概率合在一起来看:在控制淘汰赛阶段失败概率时，先基于生成阶段至少有一个正确初始候选方案这一前提。任选一个正确候选方案，关注其在二叉树结构里通向算法最终输出的路径。通过归纳法可证明，路径上每对候选方案用(K)次LLM调用比较时，若有一个输入候选方案正确，其比较失败概率不超<img src="https://i-blog.csdnimg.cn/img_convert/5f0edb64fd85fa9f3352eff4016dce78.png" srcset="/img/loading.gif" lazyload>沿此含log2N对比较的路径，用并集界可知整体比较得出正确结果（即算法最终输出正确）的失败概率不超<img src="https://i-blog.csdnimg.cn/img_convert/54b2d651adf00ab5b35611b308400584.png" srcset="/img/loading.gif" lazyload>，以此对算法在该阶段输出正确结果的概率情况进行了分析界定。 最后，对算法两个阶段的失败事件取并集，完成了对定理 1 的证明。</li>
+<li>最后就是把两个阶段的概率合在一起来看:在控制淘汰赛阶段失败概率时，先基于生成阶段至少有一个正确初始候选方案这一前提。任选一个正确候选方案，关注其在二叉树结构里通向算法最终输出的路径。通过归纳法可证明，路径上每对候选方案用(K)次LLM调用比较时，若有一个输入候选方案正确，其比较失败概率不超<img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205232012985.png" srcset="/img/loading.gif" lazyload>沿此含log2N对比较的路径，用并集界可知整体比较得出正确结果（即算法最终输出正确）的失败概率不超<img src="https://raw.githubusercontent.com/RidenShogunei/picture_bed/main/blog/20241205232053802.png" srcset="/img/loading.gif" lazyload>，以此对算法在该阶段输出正确结果的概率情况进行了分析界定。 最后，对算法两个阶段的失败事件取并集，完成了对定理 1 的证明。</li>
 </ol>
 <p><em><strong>所以说失败概率随着确定测试时间计算量的超参数 N和 K指数衰减至零。</strong></em></p>
 <h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>看完的感觉就是：</p>
