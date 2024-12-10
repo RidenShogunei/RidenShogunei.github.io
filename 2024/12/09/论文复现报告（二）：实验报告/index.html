@@ -1,0 +1,780 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="cjx">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言第一部分的实验还是挺多的，也是一个熟悉微调大模型的好机会，总之先开始吧 正文第一个实验：用无TTT结构的微调模型跑实验具体参数：模型：llama3-8B(微调版本)数据：419个问题（来自ARC和增强数据）设备：A100-pcie-40gb操作步骤 首先用作者给出的微调模型跑一下实验 记录实验结果  实验结果 第一次： 第二次:这里贴一下对于400和419的理解：  关于 419 来源及含义：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="陈树的博客">
+<meta property="og:url" content="http://example.com/2024/12/09/%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0%E6%8A%A5%E5%91%8A%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/index.html">
+<meta property="og:site_name" content="陈树的博客">
+<meta property="og:description" content="前言第一部分的实验还是挺多的，也是一个熟悉微调大模型的好机会，总之先开始吧 正文第一个实验：用无TTT结构的微调模型跑实验具体参数：模型：llama3-8B(微调版本)数据：419个问题（来自ARC和增强数据）设备：A100-pcie-40gb操作步骤 首先用作者给出的微调模型跑一下实验 记录实验结果  实验结果 第一次： 第二次:这里贴一下对于400和419的理解：  关于 419 来源及含义：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/bf62f1248203cc8513bf6404c87727b.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/2b2e497301ef27acc42f103f97c5287.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209225848643.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209230404207.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/f05cb2b6acfb4ec3b19b90cb7d9e0d9.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/0a3432f02bc49d542264d4b177ce874.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/bf918520bf71a9db74c5eb1186a5fe8.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209232139617.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209232254962.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/7171a9bb7dfc58647553699c0d07488.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210113229744.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209232139617.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209232655946.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209232717215.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/def052e9f23036f05a3f3ae6c3e9712.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/4c253acb7cfdf66ed0a69ff9e738710.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/cf2b584fc27ce9ce8528ce75154ad1f.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/9d83c9c93eef8fe475d60946c88d89e.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210122310052.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210122525881.png">
+<meta property="article:published_time" content="2024-12-09T15:47:47.621Z">
+<meta property="article:modified_time" content="2024-12-10T06:39:00.056Z">
+<meta property="article:author" content="cjx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/bf62f1248203cc8513bf6404c87727b.png">
+  
+  
+  
+  <title>陈树的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"Taum0Uk11gdw5koH4FVV5WGR-gzGzoHsz","app_key":"J1j2zE2U5y4bvbQfKnPGpWUD","server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>陈树的博客</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text=""></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-09 23:47" pubdate>
+          2024年12月9日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          12 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span>次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header"></h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>第一部分的实验还是挺多的，也是一个熟悉微调大模型的好机会，总之先开始吧</p>
+<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><h2 id="第一个实验：用无TTT结构的微调模型跑实验"><a href="#第一个实验：用无TTT结构的微调模型跑实验" class="headerlink" title="第一个实验：用无TTT结构的微调模型跑实验"></a>第一个实验：用无TTT结构的微调模型跑实验</h2><h3 id="具体参数："><a href="#具体参数：" class="headerlink" title="具体参数："></a>具体参数：</h3><h4 id="模型：llama3-8B-微调版本"><a href="#模型：llama3-8B-微调版本" class="headerlink" title="模型：llama3-8B(微调版本)"></a>模型：llama3-8B(微调版本)</h4><h4 id="数据：419个问题（来自ARC和增强数据）"><a href="#数据：419个问题（来自ARC和增强数据）" class="headerlink" title="数据：419个问题（来自ARC和增强数据）"></a>数据：419个问题（来自ARC和增强数据）</h4><h4 id="设备：A100-pcie-40gb"><a href="#设备：A100-pcie-40gb" class="headerlink" title="设备：A100-pcie-40gb"></a>设备：A100-pcie-40gb</h4><h4 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h4><ul>
+<li>首先用作者给出的微调模型跑一下实验</li>
+<li>记录实验结果</li>
+</ul>
+<h3 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h3><ul>
+<li>第一次：<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/bf62f1248203cc8513bf6404c87727b.png" srcset="/img/loading.gif" lazyload></li>
+<li>第二次:<br><img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/2b2e497301ef27acc42f103f97c5287.png" srcset="/img/loading.gif" lazyload><br>这里贴一下对于400和419的理解：</li>
+</ul>
+<h4 id="关于-419"><a href="#关于-419" class="headerlink" title="关于 419"></a>关于 <code>419</code></h4><ol>
+<li><p><strong>来源及含义</strong>：<br>从代码中可以看到 <code>args.num_examples</code> 参数的默认值被设置为 <code>419</code>，其代表的含义是用于限制处理的任务数量。也就是通过 <code>read_tasks_from_single_file</code> 函数从指定的数据文件（<code>args.data_file</code>）读取任务后，会对任务列表进行操作，如果 <code>args.num_examples</code> 有值（这里默认就是 <code>419</code>），会截取任务列表的前 <code>419</code> 个任务来参与后续一系列的处理流程，例如预处理、生成输入给模型的查询、进行预测以及后续的评估等操作。所以这个 <code>419</code> 体现的是最初设定要参与处理的任务数量上限（当然，如果实际数据文件里任务总数不足 <code>419</code> 个，那就是实际的任务数量）。<br><img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209225848643.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p><strong>在准确率计算中的体现</strong>：<br>在 “<code>Per Prediction Accuracy: 42 / 419 = 0.10023866348448687</code>” 这一计算中，分母使用 <code>419</code> 就是基于上述设定。表示在所有设定要参与处理的这 <code>419</code> 个任务里，统计预测准确的任务数量占总任务数量（也就是 <code>419</code> 个）的比例，以此来衡量预测准确率情况。</p>
+</li>
+</ol>
+<h4 id="关于-400"><a href="#关于-400" class="headerlink" title="关于 400"></a>关于 <code>400</code></h4><ol>
+<li><p><strong>来源及含义</strong>：<br><code>400</code> 这个数字出现在 “<code>Attempted tasks: 400</code>” 和 “<code>Competition Accuracy: 40 / 400 = 0.1</code>” 中。结合代码逻辑来看，经过前面一系列的任务预处理、筛选（例如根据任务是否有效等条件筛选，像在 <code>get_preprocessed_tasks</code> 函数执行后区分出 <code>valid_tasks</code> 和 <code>invalid_tasks</code> ）、生成输入给模型的查询等操作后，最终实际真正去进行后续核心处理（比如将输入给到模型进行预测等相关操作）的任务数量是 <code>400</code> 个。也就是说，虽然一开始设定要处理 <code>419</code> 个任务，但由于部分任务可能因为不符合某些条件（比如预处理后无效、相关查询生成不符合要求等原因）被排除掉了，剩下 <code>400</code> 个任务进入到后续进一步的预测、评估等环节，这里的 <code>400</code> 体现的是实际参与后续关键处理流程的有效任务数量。<br><img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209230404207.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p><strong>在准确率计算中的体现</strong>：<br>在 “<code>Competition Accuracy: 40 / 400 = 0.1</code>” 这一计算中，分母使用 <code>400</code> 就是基于上述实际参与后续关键流程的任务数量情况。即统计在这 <code>400</code> 个实际尝试进行处理（如预测等操作）的任务里，达到竞争准确率评判标准（具体评判标准应该和竞赛相关要求有关，代码中通过 <code>evaluate</code> 等函数实现相应评估逻辑）的任务数量占 <code>400</code> 个任务的比例，以此来衡量竞争准确率情况。</p>
+</li>
+</ol>
+<p>综上所述，<code>419</code> 是最初设定参与处理的任务数量上限，而 <code>400</code> 则是经过前面多轮筛选、处理后实际参与后续关键流程的任务数量，它们在不同的准确率等评估指标计算中分别作为分母，来体现对应不同阶段和不同评判标准下的任务相关统计情况。 </p>
+<h2 id="第二个实验-用TTT结构正常跑一次-8B-3B-1B"><a href="#第二个实验-用TTT结构正常跑一次-8B-3B-1B" class="headerlink" title="第二个实验:用TTT结构正常跑一次(8B,3B,1B)"></a>第二个实验:用TTT结构正常跑一次(8B,3B,1B)</h2><h3 id="具体参数：-1"><a href="#具体参数：-1" class="headerlink" title="具体参数："></a>具体参数：</h3><h4 id="模型：llama3-8B-微调版本-llama3-2-1B-llama3-2-3B"><a href="#模型：llama3-8B-微调版本-llama3-2-1B-llama3-2-3B" class="headerlink" title="模型：llama3-8B(微调版本),llama3.2-1B,llama3.2-3B"></a>模型：llama3-8B(微调版本),llama3.2-1B,llama3.2-3B</h4><h4 id="数据：419个问题（来自ARC和增强数据）-1"><a href="#数据：419个问题（来自ARC和增强数据）-1" class="headerlink" title="数据：419个问题（来自ARC和增强数据）"></a>数据：419个问题（来自ARC和增强数据）</h4><h4 id="设备：A100-pcie-40gb-1"><a href="#设备：A100-pcie-40gb-1" class="headerlink" title="设备：A100-pcie-40gb"></a>设备：A100-pcie-40gb</h4><h4 id="训练轮数-2"><a href="#训练轮数-2" class="headerlink" title="训练轮数:2"></a>训练轮数:2</h4><h4 id="batch-size-1-8B-2-3B-3-1B"><a href="#batch-size-1-8B-2-3B-3-1B" class="headerlink" title="batch_size:1(8B),2(3B),3(1B)"></a>batch_size:1(8B),2(3B),3(1B)</h4><h4 id="操作步骤-1"><a href="#操作步骤-1" class="headerlink" title="操作步骤"></a>操作步骤</h4><ul>
+<li>首先训练</li>
+<li>然后逐个推理</li>
+<li>记录实验结果</li>
+</ul>
+<h3 id="实验结果-1"><a href="#实验结果-1" class="headerlink" title="实验结果"></a>实验结果</h3><ol>
+<li>8B:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/f05cb2b6acfb4ec3b19b90cb7d9e0d9.png" srcset="/img/loading.gif" lazyload></li>
+<li>3B:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/0a3432f02bc49d542264d4b177ce874.png" srcset="/img/loading.gif" lazyload></li>
+<li>1B:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/bf918520bf71a9db74c5eb1186a5fe8.png" srcset="/img/loading.gif" lazyload></li>
+</ol>
+<p>这里实际上看得出来随着模型的参数变大,准确率也在上升</p>
+<h2 id="第三个实验-使用标准推理方法，不进行任何增强推理操作"><a href="#第三个实验-使用标准推理方法，不进行任何增强推理操作" class="headerlink" title="第三个实验:使用标准推理方法，不进行任何增强推理操作"></a>第三个实验:使用标准推理方法，不进行任何增强推理操作</h2><h3 id="具体参数：-2"><a href="#具体参数：-2" class="headerlink" title="具体参数："></a>具体参数：</h3><h4 id="模型：llama3-8B-微调版本-1"><a href="#模型：llama3-8B-微调版本-1" class="headerlink" title="模型：llama3-8B(微调版本)"></a>模型：llama3-8B(微调版本)</h4><h4 id="数据：419个问题（来自ARC和增强数据）-2"><a href="#数据：419个问题（来自ARC和增强数据）-2" class="headerlink" title="数据：419个问题（来自ARC和增强数据）"></a>数据：419个问题（来自ARC和增强数据）</h4><h4 id="设备：A100-pcie-40gb-2"><a href="#设备：A100-pcie-40gb-2" class="headerlink" title="设备：A100-pcie-40gb"></a>设备：A100-pcie-40gb</h4><h3 id="操作步骤-2"><a href="#操作步骤-2" class="headerlink" title="操作步骤:"></a>操作步骤:</h3><ol>
+<li>修改代码,主要修改部分:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209232139617.png" srcset="/img/loading.gif" lazyload>改成:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209232254962.png" srcset="/img/loading.gif" lazyload>显然,主要是把这几个数据增强手段给删了</li>
+<li>针对修改写新的脚本,执行即可</li>
+</ol>
+<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><ol>
+<li>第一次:</li>
+</ol>
+<p><img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/7171a9bb7dfc58647553699c0d07488.png" srcset="/img/loading.gif" lazyload></p>
+<p>2.第二次:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210113229744.png" srcset="/img/loading.gif" lazyload></p>
+<p>可以看出来,掉了一些点</p>
+<h2 id="第四个实验-评估单个几何变换（旋转、转置、翻转等）在推理过程中的单独有效性"><a href="#第四个实验-评估单个几何变换（旋转、转置、翻转等）在推理过程中的单独有效性" class="headerlink" title="第四个实验:评估单个几何变换（旋转、转置、翻转等）在推理过程中的单独有效性"></a>第四个实验:评估单个几何变换（旋转、转置、翻转等）在推理过程中的单独有效性</h2><h3 id="具体参数：-3"><a href="#具体参数：-3" class="headerlink" title="具体参数："></a>具体参数：</h3><h4 id="模型：llama3-8B-微调版本-2"><a href="#模型：llama3-8B-微调版本-2" class="headerlink" title="模型：llama3-8B(微调版本)"></a>模型：llama3-8B(微调版本)</h4><h4 id="数据：419个问题（来自ARC和增强数据）-3"><a href="#数据：419个问题（来自ARC和增强数据）-3" class="headerlink" title="数据：419个问题（来自ARC和增强数据）"></a>数据：419个问题（来自ARC和增强数据）</h4><h4 id="设备：A100-pcie-40gb-3"><a href="#设备：A100-pcie-40gb-3" class="headerlink" title="设备：A100-pcie-40gb"></a>设备：A100-pcie-40gb</h4><h3 id="操作步骤-3"><a href="#操作步骤-3" class="headerlink" title="操作步骤:"></a>操作步骤:</h3><ol>
+<li>修改代码,主要修改部分:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209232139617.png" srcset="/img/loading.gif" lazyload>改成:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209232655946.png" srcset="/img/loading.gif" lazyload>,<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241209232717215.png" srcset="/img/loading.gif" lazyload>等等,显然,主要是把这几个数据增强手段给进行单独保留</li>
+<li>针对修改写新的脚本,执行即可</li>
+</ol>
+<h3 id="结果-1"><a href="#结果-1" class="headerlink" title="结果"></a>结果</h3><ol>
+<li>旋转90度:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/def052e9f23036f05a3f3ae6c3e9712.png" srcset="/img/loading.gif" lazyload></li>
+<li>tranpose:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/4c253acb7cfdf66ed0a69ff9e738710.png" srcset="/img/loading.gif" lazyload></li>
+<li>Flip1:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/cf2b584fc27ce9ce8528ce75154ad1f.png" srcset="/img/loading.gif" lazyload></li>
+<li>Flip0:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/9d83c9c93eef8fe475d60946c88d89e.png" srcset="/img/loading.gif" lazyload></li>
+</ol>
+<h2 id="第五个实验-不进行分层投票中的变换内投票和补充候选操作"><a href="#第五个实验-不进行分层投票中的变换内投票和补充候选操作" class="headerlink" title="第五个实验:不进行分层投票中的变换内投票和补充候选操作"></a>第五个实验:不进行分层投票中的变换内投票和补充候选操作</h2><h3 id="具体参数：-4"><a href="#具体参数：-4" class="headerlink" title="具体参数："></a>具体参数：</h3><h4 id="模型：llama3-8B-微调版本-llama3-2-1B-llama3-2-3B-1"><a href="#模型：llama3-8B-微调版本-llama3-2-1B-llama3-2-3B-1" class="headerlink" title="模型：llama3-8B(微调版本),llama3.2-1B,llama3.2-3B"></a>模型：llama3-8B(微调版本),llama3.2-1B,llama3.2-3B</h4><h4 id="数据：419个问题（来自ARC和增强数据）-4"><a href="#数据：419个问题（来自ARC和增强数据）-4" class="headerlink" title="数据：419个问题（来自ARC和增强数据）"></a>数据：419个问题（来自ARC和增强数据）</h4><h4 id="设备：A100-pcie-40gb-4"><a href="#设备：A100-pcie-40gb-4" class="headerlink" title="设备：A100-pcie-40gb"></a>设备：A100-pcie-40gb</h4><h3 id="操作步骤-4"><a href="#操作步骤-4" class="headerlink" title="操作步骤:"></a>操作步骤:</h3><ol>
+<li><p>修改代码,主要修改部分：<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210122310052.png" srcset="/img/loading.gif" lazyload>主要是把</p>
+<p>改成<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210122525881.png" srcset="/img/loading.gif" lazyload></p>
+<p>本质上来说就是不进行分层投票中的变换内投票和补充候选操作。</p>
+</li>
+<li><p>针对修改写新的脚本,执行即可</p>
+</li>
+</ol>
+<h3 id="结果-2"><a href="#结果-2" class="headerlink" title="结果"></a>结果</h3><ol>
+<li>8B：</li>
+<li>3B:</li>
+<li>1B:</li>
+</ol>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div></div>
+      <div>http://example.com/2024/12/09/论文复现报告（二）：实验报告/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>cjx</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年12月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/05/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" title="A Simple and Provable Scaling Law for the Test-Time Compute of Large Language Models 论文阅读笔记">
+                        <span class="hidden-mobile">A Simple and Provable Scaling Law for the Test-Time Compute of Large Language Models 论文阅读笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"Taum0Uk11gdw5koH4FVV5WGR-gzGzoHsz","appKey":"J1j2zE2U5y4bvbQfKnPGpWUD","path":"window.location.pathname","placeholder":"说点什么","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量
+        <span id="leancloud-site-pv"></span>
+        次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数
+        <span id="leancloud-site-uv"></span>
+        次
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
