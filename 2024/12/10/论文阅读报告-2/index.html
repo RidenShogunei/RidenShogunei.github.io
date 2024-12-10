@@ -1,0 +1,821 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="jinxu chen">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言这篇文章也是和TTT相关的(虽然是rnn),我看完一遍之后的感觉就是–类似于上次看的CV领域的那一篇TTT结构的方法–本质上就是用一个辅助模型来帮助主模型处理一些训练集里没有的东西,同时,辅助模型的训练方式也都是自监督学习,在cv里用图像翻转,在nlp里就当然使用字符串遮盖预测了,总之 ,文章链接:https:&#x2F;&#x2F;arxiv.org&#x2F;pdf&#x2F;2407.04620 正文作者想要解决的局限:RNN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning to Learn at Test Time --- RNNs with Expressive Hidden States 论文阅读报告">
+<meta property="og:url" content="http://example.com/2024/12/10/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%E6%8A%A5%E5%91%8A-2/index.html">
+<meta property="og:site_name" content="陈树的博客">
+<meta property="og:description" content="前言这篇文章也是和TTT相关的(虽然是rnn),我看完一遍之后的感觉就是–类似于上次看的CV领域的那一篇TTT结构的方法–本质上就是用一个辅助模型来帮助主模型处理一些训练集里没有的东西,同时,辅助模型的训练方式也都是自监督学习,在cv里用图像翻转,在nlp里就当然使用字符串遮盖预测了,总之 ,文章链接:https:&#x2F;&#x2F;arxiv.org&#x2F;pdf&#x2F;2407.04620 正文作者想要解决的局限:RNN">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210155900531.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210161012358.png">
+<meta property="og:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210162920587.png">
+<meta property="article:published_time" content="2024-12-10T06:45:00.000Z">
+<meta property="article:modified_time" content="2024-12-10T11:35:42.907Z">
+<meta property="article:author" content="cjx">
+<meta property="article:tag" content="TTT">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210155900531.png">
+  
+  
+  
+  <title>Learning to Learn at Test Time --- RNNs with Expressive Hidden States 论文阅读报告 - 陈树的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"Taum0Uk11gdw5koH4FVV5WGR-gzGzoHsz","app_key":"J1j2zE2U5y4bvbQfKnPGpWUD","server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>陈树的博客</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Learning to Learn at Test Time --- RNNs with Expressive Hidden States 论文阅读报告"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-10 14:45" pubdate>
+          2024年12月10日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          43 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span>次
+        </span>
+        
+      
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Learning to Learn at Test Time --- RNNs with Expressive Hidden States 论文阅读报告</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这篇文章也是和TTT相关的(虽然是rnn),我看完一遍之后的感觉就是–类似于上次看的CV领域的那一篇TTT结构的方法–本质上就是用一个辅助模型来帮助主模型处理一些训练集里没有的东西,同时,辅助模型的训练方式也都是自监督学习,在cv里用图像翻转,在nlp里就当然使用字符串遮盖预测了,总之 ,文章链接:<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2407.04620">https://arxiv.org/pdf/2407.04620</a></p>
+<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><h2 id="作者想要解决的局限-RNN优秀的复杂度但对长文本无法处理"><a href="#作者想要解决的局限-RNN优秀的复杂度但对长文本无法处理" class="headerlink" title="作者想要解决的局限:RNN优秀的复杂度但对长文本无法处理"></a>作者想要解决的局限:RNN优秀的复杂度但对长文本无法处理</h2><p>我先分两个方向讲一下上面提到的复杂度和对长文本的局限:</p>
+<h3 id="计算复杂度方面"><a href="#计算复杂度方面" class="headerlink" title="计算复杂度方面"></a>计算复杂度方面</h3><ol>
+<li><strong>线性复杂度的含义</strong>：<br>计算复杂度衡量的是随着输入规模的变化，算法运算量增长的趋势。对于循环神经网络（RNN）层而言，它具有线性复杂度，这意味着当输入序列的长度（比如文本中词元的数量）不断增加时，其计算量大致是按照和输入长度成正比的关系增长的。例如，如果输入序列长度变为原来的两倍，那么计算量也大约会变为原来的两倍。相较于自注意力机制那种二次方复杂度（输入长度翻倍，计算量变为原来四倍）来说，从计算量随输入规模增长这个角度，RNN在处理较长序列时，不会像自注意力机制那样面临计算量急剧膨胀的问题，在计算资源消耗的控制上相对更有优势。</li>
+</ol>
+<h3 id="长文本语境表现方面"><a href="#长文本语境表现方面" class="headerlink" title="长文本语境表现方面"></a>长文本语境表现方面</h3><ol>
+<li><strong>隐藏状态及其作用</strong>：<br>在RNN中，隐藏状态起着关键作用。它可以看作是对之前输入信息的一种汇总和编码，每一步处理新的输入时，都会基于当前输入和上一时刻的隐藏状态来更新当前时刻的隐藏状态，从而让网络能够“记住”之前的一些信息，以便对后续输入进行更好的处理。比如在处理自然语言文本时，隐藏状态可以捕捉到句子前文的语义、语法等相关特征，来辅助理解后面出现的词和整个句子的意思。</li>
+<li><strong>表达能力的局限</strong>：<br>然而，RNN的隐藏状态存在表达能力的限制。在长文本语境中，随着输入序列越来越长，隐藏状态需要编码和汇总的信息越来越多，但是其自身的结构和特性决定了它难以有效地对这些海量且复杂的信息进行充分表示。比如说，长文本中可能存在远距离的语义关联、复杂的逻辑结构以及多种层次的语法关系等，RNN的隐藏状态很难把这些丰富的信息都准确地涵盖进去，会出现信息丢失或者表示不全面的情况。</li>
+<li><strong>对整体性能的影响</strong>：<br>由于隐藏状态没办法很好地处理长序列中的复杂信息，这就导致了RNN在长文本语境下的整体性能受限。例如在一些自然语言处理任务中，像语言生成、文本分类等，如果文本很长，RNN可能就无法精准地把握全文的关键语义信息，进而生成不符合逻辑的文本内容，或者在分类任务中做出错误的判断。而且随着序列长度进一步增加，这种性能下降的问题会越发明显，和那些在长语境中表现更好的模型（如Transformer等基于自注意力机制的模型，能更好地捕捉长距离依赖关系）相比，RNN在处理长文本相关任务时就显得力不从心了。</li>
+</ol>
+<p>上面这两条反映了现有 RNN 的尴尬现实。一方面，RNN 的主要优势（相对于 Transformer）在于其线性（相对于二次）复杂度。这种渐近优势只有在实践中针对长上下文才能实现，根据图 3，这在 8k 之后。另一方面，一旦上下文足够长，现有的 RNN（如 Mamba）难以真正利用所依赖的额外信息。</p>
+<p>所以作者想要提出一种新的结构来,能够结合RNN的计算复杂度的优势又能解决他的长文本乏力问题：</p>
+<blockquote>
+<p>TTT layers. Motivated by this observation, we design a new class of sequence modeling layers where the hidden state is a model, and the update rule is a step of self-supervised learning. Because the process of updating the hidden state on a test sequence is equivalent to training a model at test time, this new class of layers is called Test-Time Training (TTT) layers. We introduce two simple instantiations within this class: TTT-Linear and TTT-MLP, where the hidden state is a linear model and a two-layer MLP, respectively. TTT layers can be integrated into any network architecture and optimized end-to-end, similar to RNNs layers and self-attention.</p>
+</blockquote>
+<p>作者用这段话说明了他的方法—<em>TTT层</em>,这段话的核心思想就是:”将隐藏状态本身视为一个机器学习模型，并将更新规则视为自监督学习的一步。”这句话怎么理解呢?简单来说，为了在长文本中保持高效和表达力，我们需要一个更好的压缩启发式算法。具体来说，我们需要将数千甚至数百万个词元压缩成一个隐藏状态，该状态能够有效地捕捉其底层结构和关系。然后我们知道使用自监督训练的模型可以捕捉到其训练数据的底层结构和关系,大型语言模型本身就是很好的例子。它们通过自监督的下一个词预测任务进行训练，其权重可以被视为对互联网上现有知识的压缩存储形式。通过查询大型语言模型，我们可以从它们的权重中提取知识。更重要的是，大型语言模型通常表现出对现有知识之间语义联系的深刻理解，从而表达新的推理片段.</p>
+<h2 id="TTT层"><a href="#TTT层" class="headerlink" title="TTT层"></a>TTT层</h2><h3 id="核心思想阐述"><a href="#核心思想阐述" class="headerlink" title="核心思想阐述"></a>核心思想阐述</h3><ul>
+<li>将隐藏状态作为机器学习模型：<br>通常在传统模型里，隐藏状态更多是作为一种对过往输入信息进行汇总、编码的中间表示形式，起到传递信息的作用。但在这个新的思路中，把隐藏状态本身当作一个机器学习模型来看待，意味着它不再仅仅是被动承载信息，而是可以像常规的机器学习模型（如神经网络等）那样具备自主学习、对输入输出进行处理的能力。例如，它能够基于接收到的输入数据进行更复杂、灵活的特征提取和转换，就如同一个独立的小型预测模型在发挥作用。这里再讲的详细一点:<br><img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210155900531.png" srcset="/img/loading.gif" lazyload></li>
+</ul>
+<ol>
+<li><strong>传统模型中隐藏状态的训练</strong><ul>
+<li>在传统的序列模型（如简单的RNN）中，隐藏状态确实是在训练过程中被更新的。但是，它的更新主要是基于当前输入和上一时刻的隐藏状态，通过一个相对固定的公式来实现。例如，在基本的RNN中，$h_t &#x3D; f(Wx_t + Uh_{t - 1}+b)$，其中$h_t$是当前时刻的隐藏状态，$x_t$是当前输入，$h_{t-1}$是上一时刻的隐藏状态，$W$、$U$是权重矩阵，$b$是偏置项，$f$是激活函数。这个过程更像是一个信息的传递和简单的转换，隐藏状态主要是对过去输入信息的累积表示。</li>
+</ul>
+</li>
+<li><strong>新模型中隐藏状态作为机器学习模型的区别</strong><ul>
+<li><strong>主动学习能力</strong>：<ul>
+<li>在提出的新模型中，将隐藏状态本身视为一个机器学习模型，这意味着它具有更强的主动学习能力。它不再只是按照固定的公式被动地更新，而是像一个完整的机器学习模型一样，可以对输入进行更复杂的特征提取和处理。例如，隐藏状态可能会根据输入序列的不同模式，自主地调整自己的内部结构（类似于模型参数）来更好地适应这些模式。</li>
+</ul>
+</li>
+<li><strong>功能拓展</strong>：<ul>
+<li>传统隐藏状态主要是用于存储和传递信息，为后续的输出层提供一个中间的表示。而新的隐藏状态作为机器学习模型，可以直接对输入序列进行预测、分类等操作。比如，它可以在没有输出层参与的情况下，直接根据当前的输入和自身的状态，对序列中的下一个元素进行预测，这类似于一个独立的小型预测模型。</li>
+</ul>
+</li>
+<li><strong>学习方式的改变</strong>：<ul>
+<li>传统的隐藏状态更新是基于训练数据集中的标签信息（如果是有监督学习）或者基于重建输入（如果是无监督学习，如自编码器）。而新的隐藏状态作为机器学习模型，其更新规则是自监督学习的一步。这意味着它可以利用输入序列自身的结构特点，例如序列中的顺序关系、重复模式等，来自我更新和优化，而不依赖于外部提供的标签或者特定的重建目标。例如，它可以通过预测序列中的下一个元素，然后根据预测结果和实际的下一个元素之间的差异来进行自我更新，就像一个自监督的语言模型一样。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>更新规则作为自监督学习的一步：<br>自监督学习是一种不需要人工标注大量数据标签，通过利用数据自身的结构特点来构造监督信息进行学习的方式。把隐藏状态的更新规则设定为自监督学习的一步，就是说隐藏状态在每一次更新的过程中，会像在自监督学习场景下那样，依据数据本身内在的关联和规律来进行自我调整、优化参数，以更好地适应输入序列的各种特征，使得隐藏状态能不断学习到更有效的信息表示方式，强化其对整个序列信息的编码能力。</li>
+</ul>
+<h2 id="自监督任务"><a href="#自监督任务" class="headerlink" title="自监督任务"></a>自监督任务</h2><blockquote>
+<p>Our key idea is to use self-supervised learning to compress the historic context<br>x1, . . . , xt<br> into a hidden state<br>st<br>, by making the context an unlabeled dataset and the state a model. Concretely, the hidden state<br>st<br> is now equivalent to<br>Wt<br>, the weights of a model<br>f<br> , which can be a linear model, a small neural network, or anything else. The output rule is simply:<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210161012358.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<p>以下是对这段话的详细理解：</p>
+<h3 id="整体核心思路"><a href="#整体核心思路" class="headerlink" title="整体核心思路"></a>整体核心思路</h3><p>这段话阐述的核心想法是运用自监督学习的方式，对历史上下文信息（也就是序列中从 $x_1$ 到 $x_t$ 这些元素所包含的信息）进行处理，将其压缩并整合进一个隐藏状态 $s_t$ 里。这里把历史上下文当作一个无标签的数据集来看待，同时将隐藏状态视为一个模型，通过这样的设定来实现信息的有效整合与表示。</p>
+<h3 id="关于隐藏状态作为模型及权重的理解"><a href="#关于隐藏状态作为模型及权重的理解" class="headerlink" title="关于隐藏状态作为模型及权重的理解"></a>关于隐藏状态作为模型及权重的理解</h3><ol>
+<li><strong>隐藏状态与模型权重的等价关系</strong>：<br>具体来讲，此时的隐藏状态 $s_t$ 等同于 $W_t$，这里的 $W_t$ 是一个模型 $f$ 的权重。这是一种很独特的视角转换，以往隐藏状态更多是作为一种中间的向量表示，存储之前输入信息的汇总情况，但现在它被赋予了等同于模型权重的角色。也就是说，这个隐藏状态不再仅仅是简单承载信息，而是像模型的权重参数一样，能够决定模型（这里的模型就是 $f$ ）对输入进行怎样的变换、处理以及特征提取等操作。这里顺便比较一下传统情况下的区别:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>比较维度</th>
+<th>隐藏状态（传统情况）</th>
+<th>权重（传统情况）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>定义与本质</strong></td>
+<td>是对过往输入信息进行汇总和编码的中间向量表示，随着输入序列的推进不断更新，动态反映不同时刻输入信息的累积情况。</td>
+<td>是模型中需要学习的参数，定义了不同层之间（如输入到隐藏层、隐藏层到输出层等）的转换关系，是相对固定的数值（训练时调整，训练后基本固定）。</td>
+</tr>
+<tr>
+<td><strong>更新机制</strong></td>
+<td>在每个时间步，根据当前输入以及上一时刻的隐藏状态，按照特定的计算规则（如在RNN中依据相应公式）进行更新，主要是为了整合新输入与已有信息。</td>
+<td>通过训练过程，基于训练数据、损失函数，利用优化算法（如梯度下降等）来不断调整其数值，目的是最小化损失，使模型输出更符合预期，训练结束后在测试阶段基本不再改变。</td>
+</tr>
+<tr>
+<td><strong>功能作用</strong></td>
+<td>起到传递历史信息的作用，便于后续时间步利用这些信息进行进一步计算，辅助模型理解整个序列的特征，最终服务于输出结果的生成。</td>
+<td>决定了输入数据经过模型各层时如何进行变换、进行何种程度的特征提取以及如何映射到输出空间等，从根本上控制着模型的计算流程和对输入的处理方式。</td>
+</tr>
+<tr>
+<td><strong>在序列处理中的变化情况</strong></td>
+<td>会随着输入序列的逐个时间步不断变化，时刻反映序列中不同位置输入信息的综合情况，对于长序列来说其变化贯穿整个序列处理过程。</td>
+<td>在训练阶段按优化算法逐步调整，训练结束后面对不同的输入序列（在测试阶段）通常保持稳定，不会因输入序列中的不同元素而动态变化（除非特殊的可动态调整权重的架构，但不是常规情况）。</td>
+</tr>
+<tr>
+<td><strong>与模型输出的关系</strong></td>
+<td>间接影响输出，作为中间环节，先汇总信息后参与到后续输出的计算中，其状态好坏影响最终输出是否能准确反映序列特征。</td>
+<td>直接决定输出，不同的权重取值会使得相同输入经过模型后产生不同的输出结果，权重是控制输出的关键因素之一。</td>
+</tr>
+</tbody></table>
+<ol>
+<li><strong>模型 $f$ 的多样性</strong>：<br>这个模型 $f$ 可以有多种形式，它可以是一个简单的线性模型，例如线性回归那样的形式，只通过线性变换来处理输入；也可以是一个小型的神经网络，像包含几个隐藏层的多层感知机，能够进行更复杂、非线性的特征映射；甚至可以是其他任意符合需求的模型结构。这种灵活性意味着可以根据具体的任务场景、数据特点等选择合适的模型形式来构建隐藏状态，使其具备相应的信息处理能力。</li>
+</ol>
+<h3 id="输出规则"><a href="#输出规则" class="headerlink" title="输出规则"></a>输出规则</h3><p>从直觉上讲，输出的结果只是对xt的预测，该预测是由f使用更新后的权重Wt进行的。更新规则是针对某个自监督损失ℓ进行梯度下降的一步：<img src="https://blogpictureded.oss-cn-shanghai.aliyuncs.com/blog/20241210162920587.png" srcset="/img/loading.gif" lazyload>这里学习率是η.<br>在这里作者说:</p>
+<blockquote>
+<p>From the compression point of view, every heuristic needs to decide which input to remember or forget. Our<br>W<br> remembers inputs that produce large gradients – intuitively, inputs that make<br>W<br> learn a lot.</p>
+</blockquote>
+<p> 怎么理解呢?</p>
+<h4 id="从压缩角度出发的一般性考量"><a href="#从压缩角度出发的一般性考量" class="headerlink" title="从压缩角度出发的一般性考量"></a>从压缩角度出发的一般性考量</h4><p>在处理序列数据并尝试对其进行压缩表示时（就像把一段长的历史上下文信息压缩进一个隐藏状态那样），各种方法或者启发式策略（heuristic）都面临一个关键问题，那就是需要去决定哪些输入信息应该被记住，哪些又该被忘掉。这是因为不可能无限制地把所有输入都完整保留下来，一方面计算资源和存储资源有限，另一方面也没必要全部保留，需要提取最关键、最有价值的信息进行存储，以形成一种有效的压缩表示，便于后续利用这个表示进行序列相关的任务处理，比如预测、分类等。</p>
+<h4 id="关于“W”记住特定输入的机制"><a href="#关于“W”记住特定输入的机制" class="headerlink" title="关于“W”记住特定输入的机制"></a>关于“W”记住特定输入的机制</h4><p>这里提到的“W”（也就是前面所讲的等同于隐藏状态的模型权重）有着独特的信息选择方式。它会记住那些能够产生较大梯度的输入。从直观层面理解，梯度在机器学习中通常与模型的学习过程密切相关，梯度反映了损失函数相对于模型参数（在这里就是“W”）的变化率。</p>
+<p>当某个输入使得“W”产生较大的梯度时，意味着这个输入对于“W”（也就是这个隐藏状态所代表的模型权重）的调整、学习有着重要的推动作用。可以想象成这个输入带来了很强烈的“信号”，促使模型（通过调整“W”）去更好地适应数据、学到更多有用的知识或者模式。所以，“W”会倾向于记住这样的输入，把它们所包含的信息保留下来，整合进自身的表示当中，而对于那些产生梯度较小的输入，相对来说就不太重要，可能就会被“忽略”或者说忘掉，以此实现一种基于学习重要性的信息筛选和压缩机制，让“W”所代表的隐藏状态能够聚焦于那些对模型学习有较大价值的输入信息，进而更好地完成后续的序列处理任务。</p>
+<h3 id="具体操作"><a href="#具体操作" class="headerlink" title="具体操作"></a>具体操作</h3><p>这个其实很暴力,就是简单的端到端—直接针对下一个词预测的最终目标优化自监督任务。</p>
+<h2 id="内外环的问题"><a href="#内外环的问题" class="headerlink" title="内外环的问题"></a>内外环的问题</h2><blockquote>
+<p>We refer to training the larger network as the outer loop, and training<br>W<br> within each TTT layer as the inner loop. An important diﬀerence between the two nested learning problems is that the inner-loop gradient ∇ℓ is taken w.r.t.<br>W<br> , the parameters of<br>f<br> , while the outer-loop gradient is taken w.r.t the parameters of the rest of the network, which we will denote by<br>θrest<br>. Throughout this paper, outer-loop parameters are always denoted by<br>θ<br> with various subscripts.</p>
+</blockquote>
+<p>以下是对这段话的详细理解：</p>
+<h3 id="内外环学习的概念界定"><a href="#内外环学习的概念界定" class="headerlink" title="内外环学习的概念界定"></a>内外环学习的概念界定</h3><p>涉及到了两个不同层面的训练过程，分别被定义为外环（outer loop）和内环（inner loop）。</p>
+<ul>
+<li><p><strong>外环（outer loop）</strong>：这里把对整个更大规模网络进行训练的过程称作外环。从整体网络架构层面出发，针对包含了多个部分、多个层次以及众多参数的完整网络进行的一种全局的训练操作。这个完整网络中除了我们重点关注的 TTT（测试时训练）层里面的相关元素外，还有其他很多组成部分，它们共同协作来完成各种任务，比如处理输入序列、生成合适的输出等，而外环训练就是要调整这些众多组成部分对应的参数，让整个网络的性能达到最优。</p>
+</li>
+<li><p><strong>内环（inner loop）</strong>：与之相对应，在每个 TTT 层内部对 (W) （前面提到过 (W) 等同于 TTT 层隐藏状态所代表的模型 (f) 的参数）进行训练的这个过程被称为内环。也就是说，在 TTT 层这个相对独立又关键的局部范围内，有它自己专门的训练机制，聚焦于对自身隐藏状态所对应的参数 (W) 进行调整优化，使其能够更好地实现如压缩历史上下文信息、进行有效的序列建模等功能。</p>
+</li>
+</ul>
+<h3 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h3><p>二者重要区别体现在计算梯度的对象上，内环梯度是关于 (W) （即 TTT 层里隐藏状态对应的模型 (f) 的参数）计算的，通过分析损失函数 (\ell) 相对于 (W) 的变化来指导调整 (W) 参数，助力模型 (f) 在 TTT 层内更好地完成如更新隐藏状态、编码序列信息等工作；外环梯度则针对网络其余部分用 (\theta_{rest}) 表示的参数来计算，通过分析损失函数相对于这些参数的变化去调整它们，促使整个网络从整体架构层面有效处理输入、输出任务. </p>
+<h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>其实论文还有很多部分是在讲他的并行计算和提升效率的问题,但是好像和我没啥关系,就先这样吧()</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/TTT/" class="print-no-link">#TTT</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Learning to Learn at Test Time --- RNNs with Expressive Hidden States 论文阅读报告</div>
+      <div>http://example.com/2024/12/10/论文阅读报告-2/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>jinxu chen</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年12月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/12/10/%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0%E6%8A%A5%E5%91%8A%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" title="The Surprising Effectiveness of Test-Time Training for Abstract Reasoning 论文复现报告（二）：实验报告States 论文阅读报告">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">The Surprising Effectiveness of Test-Time Training for Abstract Reasoning 论文复现报告（二）：实验报告States 论文阅读报告</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/05/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" title="A Simple and Provable Scaling Law for the Test-Time Compute of Large Language Models 论文阅读笔记">
+                        <span class="hidden-mobile">A Simple and Provable Scaling Law for the Test-Time Compute of Large Language Models 论文阅读笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"Taum0Uk11gdw5koH4FVV5WGR-gzGzoHsz","appKey":"J1j2zE2U5y4bvbQfKnPGpWUD","path":"window.location.pathname","placeholder":"说点什么","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量
+        <span id="leancloud-site-pv"></span>
+        次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数
+        <span id="leancloud-site-uv"></span>
+        次
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
